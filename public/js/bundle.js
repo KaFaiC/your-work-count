@@ -25,8 +25,11 @@ module.exports = App = React.createClass({displayName: 'App',
   render: function(){
 
     return (
-      React.DOM.h1(null, " Your Work Count!!!!!")
-    )
+			React.DOM.div(null, 
+      	React.DOM.h1(null, " Your Work Count!!!!!"), 
+				React.DOM.button({className: "btn btn-default"}, "Bootstrap")
+    	)
+		)
 
   }
 

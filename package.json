@@ -30,7 +30,8 @@
     "gulp": "^3.8.11",
     "gulp-minify-css": "^0.5.1",
     "gulp-rename": "^1.2.0",
-    "gulp-sass": "^1.3.3"
+    "gulp-bower": "0.0.10",
+		"gulp-ruby-sass": "^0.7.1"
   },
   "browserify": {
     "transform": [
@@ -38,11 +39,11 @@
     ]
   },
   "paths": {
-		"sass": "./public/**/*.scss",
-		"js": "./public/**/*.js"
-	},
-	"dest": {
-		"app": "./assets/bundle.js",
-		"style": "./assets/style.js"
-	}
+    "sass": "./public/**/*.scss",
+    "js": "./public/**/*.js"
+  },
+  "dest": {
+    "app": "./assets/bundle.js",
+    "style": "./assets/style.js"
+  }
 }
