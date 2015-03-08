@@ -14,11 +14,14 @@
   "dependencies": {
     "express": "~4.9.7",
     "express-handlebars": "~1.1.0",
+    "flux": "^2.0.1",
+    "gulp-filter": "^2.0.2",
     "mongoose": "^3.8.17",
     "node-jsx": "~0.11.0",
     "ntwitter": "^0.5.0",
     "react": "~0.12.2",
-    "socket.io": "^1.1.0"
+    "socket.io": "^1.1.0",
+    "underscore": "^1.8.2"
   },
   "devDependencies": {
     "browserify": "~6.0.3",
@@ -31,7 +34,7 @@
     "gulp-minify-css": "^0.5.1",
     "gulp-rename": "^1.2.0",
     "gulp-bower": "0.0.10",
-		"gulp-ruby-sass": "^0.7.1"
+    "gulp-ruby-sass": "^0.7.1"
   },
   "browserify": {
     "transform": [

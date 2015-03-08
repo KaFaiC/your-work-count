@@ -1,18 +1,21 @@
 var JSX = require('node-jsx').install(),
   React = require('react'),
-  App   = require('./components/App');
-
+  App   = require('./app/components/App')
+	CommitmentStore = require('./app/stores/commitmentStore');
 module.exports = {
 
   index: function(req, res) {
       var markup = React.renderToString(
-        App({})
+        App({
+          allCommitments: CommitmentStore.getAll()
+				})
       );
-
+      console.log('routesssss.js')
+			// console.log(CommitmentStore.getAll());
       // Render our 'home' template
       res.render('home', {
         markup: markup, // Pass rendered react markup
-        state: null // Pass current state to client side
+        state: [JSON.stringify(CommitmentStore.getAll())] // Pass current state to client side
       });
   }
 }

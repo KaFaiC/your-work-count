@@ -1,0 +1,12 @@
+{
+  "name": "your-work-count",
+  "version": "0.0.0",
+  "main": "public/css/style.css",
+  "ignore": [
+    ".jshintrc",
+    "**/*.txt"
+  ],
+  "dependencies": {
+    "bootstrap": "3.3.2"
+  }
+}
