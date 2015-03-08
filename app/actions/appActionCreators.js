@@ -1,19 +1,19 @@
-var appDispatcher = require('../dispatcher/appDispatcher');
-var AppConstants = require('../constants/appConstants');
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var AppConstants = require('../constants/AppConstants');
 
 var ActionTypes = AppConstants.ActionTypes;
 
 module.exports = {
 
   receiveAll: function(rawCommitments) {
-    appDispatcher.dispatch({
+    AppDispatcher.dispatch({
       type: ActionTypes.RECEIVE_RAW_COMMITMENTS,
       rawCommitments: rawCommitments
     })
   },
 
   receiveCreatedCommitment: function(createdCommitment) {
-    appDispatcher.dispatch({
+    AppDispatcher.dispatch({
       type: ActionTypes.RECEIVE_RAW_CREATED_COMMITMENT,
       rawCommitment: createdCommitment
     });

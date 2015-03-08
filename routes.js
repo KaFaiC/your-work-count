@@ -10,8 +10,6 @@ module.exports = {
           // allCommitments: CommitmentStore.getAll()
 				})
       );
-      console.log('routesssss.js')
-			// console.log(CommitmentStore.getAll());
       // Render our 'home' template
       res.render('home', {
         markup: markup, // Pass rendered react markup

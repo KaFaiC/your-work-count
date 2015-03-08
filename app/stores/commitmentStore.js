@@ -2,7 +2,7 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter  = require('events').EventEmitter;
 var _             = require('underscore');
 var AppUtils 			= require('../utils/AppUtils');
-var AppConstants 	= require('../constants/appConstants')
+var AppConstants 	= require('../constants/AppConstants')
 
 var ActionTypes 	= AppConstants.ActionTypes;
 

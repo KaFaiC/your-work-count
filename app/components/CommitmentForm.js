@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 var React = require('react');
-var CommitmentActionCreators = require('../actions/commitmentActionCreators.js');
+var CommitmentActionCreators = require('../actions/CommitmentActionCreators.js');
 
 var CommitmentForm = React.createClass({
 
