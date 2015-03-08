@@ -3,16 +3,102 @@
 
 var React = require('react');
 var App = require('./app/components/App');
+var CommitmentsAPI = require('./app/api/commitmentAPI')
 
 var initialState = JSON.parse(document.getElementById('initial-state').innerHTML)
+CommitmentsAPI.getAllCommitments();
 // Snag the initial state that was passed from the server side
 // Render the components, picking up where react left off on the server
 React.render(
-  App({allCommitments: initialState}),
+	App(null),
+  // <App allCommitments={initialState} />,
   document.getElementById('react-app')
 );
 
-},{"./app/components/App":"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js":[function(require,module,exports){
+},{"./app/api/commitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js","./app/components/App":"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/appActionCreators.js":[function(require,module,exports){
+var appDispatcher = require('../dispatcher/appDispatcher');
+var AppConstants = require('../constants/appConstants');
+
+var ActionTypes = AppConstants.ActionTypes;
+
+module.exports = {
+
+  receiveAll: function(rawCommitments) {
+    appDispatcher.dispatch({
+      type: ActionTypes.RECEIVE_RAW_COMMITMENTS,
+      rawCommitments: rawCommitments
+    })
+  },
+
+  receiveCreatedCommitment: function(createdCommitment) {
+    appDispatcher.dispatch({
+      type: ActionTypes.RECEIVE_RAW_CREATED_COMMITMENT,
+      rawCommitment: createdCommitment
+    });
+  }
+
+};
+
+},{"../constants/appConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/appConstants.js","../dispatcher/appDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/appDispatcher.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/commitmentActionCreators.js":[function(require,module,exports){
+var appDispatcher = require('../dispatcher/appDispatcher');
+var AppConstants = require('../constants/appConstants');
+var CommitmentAPI = require('../api/CommitmentAPI');
+var AppUtils = require('../utils/AppUtils');
+
+var ActionTypes = AppConstants.ActionTypes;
+
+module.exports = {
+
+  createCommitment: function(title, description) {
+    appDispatcher.dispatch({
+      type: ActionTypes.CREATE_COMMITMENT,
+      title: title,
+      description: description
+    });
+    var commitment = AppUtils.getCreatedCommitmentData(title, description);
+    CommitmentAPI.createCommitment(commitment);
+  }
+
+};
+
+},{"../api/CommitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js","../constants/appConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/appConstants.js","../dispatcher/appDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/appDispatcher.js","../utils/AppUtils":"/Users/kafai/coding/other_projects/your-work-count/app/utils/AppUtils.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":[function(require,module,exports){
+var AppActionCreators = require('../actions/appActionCreators');
+
+module.exports = {
+
+  getAllCommitments: function() {
+    // simulate retrieving data from a database
+    var rawCommitments = JSON.parse(localStorage.getItem('commitments')) || [];
+
+    // simulate success callback
+    AppActionCreators.receiveAll(rawCommitments);
+  },
+
+  createCommitment: function(commitment) {
+    // simulate writing to a database
+    var rawCommitments = JSON.parse(localStorage.getItem('commitments')) || [];
+    var timestamp = Date.now();
+    var id = 'commitment' + timestamp;
+    var createdCommitment = {
+      id: id,
+      title: commitment.title,
+      description: commitment.description,
+      timestamp: timestamp
+    };
+    rawCommitments.push(createdCommitment);
+    localStorage.setItem('commitments', JSON.stringify(rawCommitments));
+
+    // simulate success callback
+    setTimeout(function() {
+      AppActionCreators.receiveCreatedCommitment(createdCommitment);
+    }, 100);
+  }
+
+};
+
+},{"../actions/appActionCreators":"/Users/kafai/coding/other_projects/your-work-count/app/actions/appActionCreators.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js":[function(require,module,exports){
+module.exports=require("/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js")
+},{"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js":[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React 					= require('react');
@@ -20,10 +106,11 @@ var Loader				  = require('./Loader.js');
 var NotificationBar = require('./NotificationBar.js');
 var CommitmentList  = require('./CommitmentList.js');
 var CommitmentStore = require('../stores/commitmentStore.js');
+var CommitmentForm  = require('./CommitmentForm.js');
 var Header          = require('./Header.js');
 // Export the App component
 
-function getCommitmentState() {
+function getCommitmentStateFromStore() {
 	return {
 			allCommitments: CommitmentStore.getAll()
 		};
@@ -32,10 +119,9 @@ function getCommitmentState() {
 var App = React.createClass({displayName: 'App',
 
 	getInitialState: function(props) {
-		props = props || this.props;
-		console.log(this.props)
-		return props
-		// return getCommitmentState();
+		// props = props || this.props;
+		// return props
+		return getCommitmentStateFromStore();
 	},
 
 	componentDidMount: function() {
@@ -55,21 +141,82 @@ var App = React.createClass({displayName: 'App',
 				CommitmentList({
 					allCommitments: this.state.allCommitments}
 				), 
-				React.DOM.button({className: "btn btn-default"}, "Bootstrap")
+				CommitmentForm(null)
     	)
 		)
 
   },
 
 	_onChange: function() {
-		this.setState(getTodoState());
+		this.setState(getCommitmentStateFromStore());
 	}
 
 });
 
 module.exports = App;
 
-},{"../stores/commitmentStore.js":"/Users/kafai/coding/other_projects/your-work-count/app/stores/commitmentStore.js","./CommitmentList.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentList.js","./Header.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Header.js","./Loader.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Loader.js","./NotificationBar.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/NotificationBar.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentItem.js":[function(require,module,exports){
+},{"../stores/commitmentStore.js":"/Users/kafai/coding/other_projects/your-work-count/app/stores/commitmentStore.js","./CommitmentForm.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentForm.js","./CommitmentList.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentList.js","./Header.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Header.js","./Loader.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Loader.js","./NotificationBar.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/NotificationBar.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentForm.js":[function(require,module,exports){
+/** @jsx React.DOM */
+
+var React = require('react');
+var CommitmentActionCreators = require('../actions/commitmentActionCreators.js');
+
+var CommitmentForm = React.createClass({displayName: 'CommitmentForm',
+
+	getInitialState: function() {
+		return {
+			title: '',
+			description: ''
+		}
+	},
+
+	render: function() {
+		var commitment = this.props.commitment;
+
+		return (
+			React.DOM.form({className: "commitment-form"}, 
+				React.DOM.input({
+					className: "commitment-title", 
+					ref: "title", 
+					value: this.state.title, 
+					onChange: this._onTitleChange}
+				), 
+				React.DOM.textarea({
+					className: "commitment-description", 
+					ref: "description", 
+					value: this.state.description, 
+					onChange: this._onDescriptionChange}
+				), 
+				React.DOM.button({
+					className: "btn btn-default", 
+					onClick: this._onFormSubmit
+				}, 
+					"Submit"
+				)
+			)
+		);
+	},
+
+	_onTitleChange: function(event, value) {
+		this.setState({title: event.target.value})
+	},
+
+	_onDescriptionChange: function(event, value) {
+		this.setState({description: event.target.value})
+	},
+
+	_onFormSubmit: function(event, value) {
+		var title = this.state.title.trim();
+		var description = this.state.description.trim();
+		console.log(CommitmentActionCreators);
+		event.preventDefault();
+		CommitmentActionCreators.createCommitment(title, description)
+	}
+});
+
+module.exports = CommitmentForm;
+
+},{"../actions/commitmentActionCreators.js":"/Users/kafai/coding/other_projects/your-work-count/app/actions/commitmentActionCreators.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentItem.js":[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react');
@@ -80,7 +227,7 @@ var CommitmentItem = React.createClass({displayName: 'CommitmentItem',
 		var commitment = this.props.commitment;
 		return (
 			React.DOM.li(null, 
-				commitment
+				commitment.title
 			)
 		);
 	}
@@ -97,19 +244,18 @@ var CommitmentItem = require('./CommitmentItem');
 var CommitmentList = React.createClass({displayName: 'CommitmentList',
 
 	render: function() {
-		console.log('*****')
-		console.log(this.props)
 		if (Object.keys(this.props.allCommitments).length < 1) {
 			return null;
 		}
 		var allCommitments = this.props.allCommitments;
-		var commitments = [];
+		console.log(allCommitments)
 
-		for (var i = 0 ; i < allCommitments.length ; i++) {
-			var key = 'commitment' + i;
-			console.log(key);
-			commitments.push(CommitmentItem({key: key, commitment: allCommitments[i]}));
+		var commitments = [];
+		for (var commitmentId in allCommitments) {
+			var key = commitmentId
+			commitments.push(CommitmentItem({key: key, commitment: allCommitments[commitmentId]}));
 		}
+		console.log(commitments)
 		return (
 			React.DOM.section({id: "commitment-section"}, 
 				React.DOM.ul({id: "commitment-list"}, commitments)
@@ -169,20 +315,50 @@ module.exports = NotificationBar = React.createClass({displayName: 'Notification
   }
 });
 
-},{"react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js":[function(require,module,exports){
+},{"react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/constants/appConstants.js":[function(require,module,exports){
+var keyMirror = require('keymirror');
+
+module.exports = {
+
+  ActionTypes: keyMirror({
+    CREATE_COMMITMENT: null,
+    RECEIVE_RAW_COMMITMENTS: null
+  })
+
+};
+
+},{"keymirror":"/Users/kafai/coding/other_projects/your-work-count/node_modules/keymirror/index.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js":[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":"/Users/kafai/coding/other_projects/your-work-count/node_modules/flux/index.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/stores/commitmentStore.js":[function(require,module,exports){
+},{"flux":"/Users/kafai/coding/other_projects/your-work-count/node_modules/flux/index.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/appDispatcher.js":[function(require,module,exports){
+module.exports=require("/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js")
+},{"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/stores/commitmentStore.js":[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter  = require('events').EventEmitter;
 var _             = require('underscore');
+var AppUtils 			= require('../utils/AppUtils');
+var AppConstants 	= require('../constants/appConstants')
+
+var ActionTypes 	= AppConstants.ActionTypes;
 
 var CHANGE_EVENT = 'change';
-var _commitments = ['Commitment1', 'Commitment2'];
+var _commitments = {};
 
 var CommitmentStore = _.extend({}, EventEmitter.prototype, {
+
+	init: function(rawCommitments) {
+		rawCommitments.forEach(function(commitment) {
+			_commitments[commitment.id] = {
+				id: commitment.id,
+				title: commitment.title,
+				description: commitment.description,
+				timestamp: commitment.timestamp
+			}
+		})
+	},
+
 	getAll: function() {
 		return _commitments;
 	},
@@ -201,16 +377,19 @@ var CommitmentStore = _.extend({}, EventEmitter.prototype, {
 });
 
 AppDispatcher.register(function(action) {
-	var title;
-
-	switch(action.actionType) {
-		case CommitmentConstants.COMMITMENT_CREATE:
-			title = action.title.trim();
- 			if (title.length > 0) {
-				create(text);
-			}
+	switch(action.type) {
+		case ActionTypes.RECEIVE_RAW_COMMITMENTS:
+			CommitmentStore.init(action.rawCommitments);
 			CommitmentStore.emitChange();
 			break;
+		case ActionTypes.CREATE_COMMITMENT:
+			var commitment = AppUtils.getCreatedCommitmentData(
+        action.title,
+        action.description
+      );
+      _commitments[commitment.id] = commitment;
+			CommitmentStore.emitChange();
+      break;
 		default:
 			//nothing happen
 	}
@@ -218,7 +397,34 @@ AppDispatcher.register(function(action) {
 
 module.exports = CommitmentStore;
 
-},{"../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js","events":"/Users/kafai/coding/other_projects/your-work-count/node_modules/watchify/node_modules/browserify/node_modules/events/events.js","underscore":"/Users/kafai/coding/other_projects/your-work-count/node_modules/underscore/underscore.js"}],"/Users/kafai/coding/other_projects/your-work-count/node_modules/flux/index.js":[function(require,module,exports){
+},{"../constants/appConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/appConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js","../utils/AppUtils":"/Users/kafai/coding/other_projects/your-work-count/app/utils/AppUtils.js","events":"/Users/kafai/coding/other_projects/your-work-count/node_modules/watchify/node_modules/browserify/node_modules/events/events.js","underscore":"/Users/kafai/coding/other_projects/your-work-count/node_modules/underscore/underscore.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/utils/AppUtils.js":[function(require,module,exports){
+module.exports = {
+
+  // convertRawMessage: function(rawMessage, currentThreadID) {
+  //   return {
+  //     id: rawMessage.id,
+  //     threadID: rawMessage.threadID,
+  //     authorName: rawMessage.authorName,
+  //     date: new Date(rawMessage.timestamp),
+  //     text: rawMessage.text,
+  //     isRead: rawMessage.threadID === currentThreadID
+  //   };
+  // },
+
+  getCreatedCommitmentData: function(title, description) {
+    var timestamp = Date.now();
+    var id = 'commitment' + timestamp;
+    return {
+      id: id,
+      title: title,
+      description: description,
+      timestamp: timestamp
+    };
+  }
+
+};
+
+},{}],"/Users/kafai/coding/other_projects/your-work-count/node_modules/flux/index.js":[function(require,module,exports){
 /**
  * Copyright (c) 2014, Facebook, Inc.
  * All rights reserved.
@@ -536,6 +742,61 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 };
 
 module.exports = invariant;
+
+},{}],"/Users/kafai/coding/other_projects/your-work-count/node_modules/keymirror/index.js":[function(require,module,exports){
+/**
+ * Copyright 2013-2014 Facebook, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+"use strict";
+
+/**
+ * Constructs an enumeration with keys equal to their value.
+ *
+ * For example:
+ *
+ *   var COLORS = keyMirror({blue: null, red: null});
+ *   var myColor = COLORS.blue;
+ *   var isColorValid = !!COLORS[myColor];
+ *
+ * The last line could not be performed if the values of the generated enum were
+ * not equal to their keys.
+ *
+ *   Input:  {key1: val1, key2: val2}
+ *   Output: {key1: key1, key2: key2}
+ *
+ * @param {object} obj
+ * @return {object}
+ */
+var keyMirror = function(obj) {
+  var ret = {};
+  var key;
+  if (!(obj instanceof Object && !Array.isArray(obj))) {
+    throw new Error('keyMirror(...): Argument must be an object.');
+  }
+  for (key in obj) {
+    if (!obj.hasOwnProperty(key)) {
+      continue;
+    }
+    ret[key] = key;
+  }
+  return ret;
+};
+
+module.exports = keyMirror;
 
 },{}],"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
 /**

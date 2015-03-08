@@ -7,7 +7,7 @@ module.exports = {
   index: function(req, res) {
       var markup = React.renderToString(
         App({
-          allCommitments: CommitmentStore.getAll()
+          // allCommitments: CommitmentStore.getAll()
 				})
       );
       console.log('routesssss.js')

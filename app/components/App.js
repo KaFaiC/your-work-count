@@ -5,10 +5,11 @@ var Loader				  = require('./Loader.js');
 var NotificationBar = require('./NotificationBar.js');
 var CommitmentList  = require('./CommitmentList.js');
 var CommitmentStore = require('../stores/commitmentStore.js');
+var CommitmentForm  = require('./CommitmentForm.js');
 var Header          = require('./Header.js');
 // Export the App component
 
-function getCommitmentState() {
+function getCommitmentStateFromStore() {
 	return {
 			allCommitments: CommitmentStore.getAll()
 		};
@@ -17,10 +18,9 @@ function getCommitmentState() {
 var App = React.createClass({
 
 	getInitialState: function(props) {
-		props = props || this.props;
-		console.log(this.props)
-		return props
-		// return getCommitmentState();
+		// props = props || this.props;
+		// return props
+		return getCommitmentStateFromStore();
 	},
 
 	componentDidMount: function() {
@@ -40,14 +40,14 @@ var App = React.createClass({
 				<CommitmentList 
 					allCommitments={this.state.allCommitments}
 				/>
-				<button className="btn btn-default">Bootstrap</button>
+				<CommitmentForm />
     	</div>
 		)
 
   },
 
 	_onChange: function() {
-		this.setState(getTodoState());
+		this.setState(getCommitmentStateFromStore());
 	}
 
 });

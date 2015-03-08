@@ -1,11 +1,27 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter  = require('events').EventEmitter;
 var _             = require('underscore');
+var AppUtils 			= require('../utils/AppUtils');
+var AppConstants 	= require('../constants/appConstants')
+
+var ActionTypes 	= AppConstants.ActionTypes;
 
 var CHANGE_EVENT = 'change';
-var _commitments = ['Commitment1', 'Commitment2'];
+var _commitments = {};
 
 var CommitmentStore = _.extend({}, EventEmitter.prototype, {
+
+	init: function(rawCommitments) {
+		rawCommitments.forEach(function(commitment) {
+			_commitments[commitment.id] = {
+				id: commitment.id,
+				title: commitment.title,
+				description: commitment.description,
+				timestamp: commitment.timestamp
+			}
+		})
+	},
+
 	getAll: function() {
 		return _commitments;
 	},
@@ -24,16 +40,19 @@ var CommitmentStore = _.extend({}, EventEmitter.prototype, {
 });
 
 AppDispatcher.register(function(action) {
-	var title;
-
-	switch(action.actionType) {
-		case CommitmentConstants.COMMITMENT_CREATE:
-			title = action.title.trim();
- 			if (title.length > 0) {
-				create(text);
-			}
+	switch(action.type) {
+		case ActionTypes.RECEIVE_RAW_COMMITMENTS:
+			CommitmentStore.init(action.rawCommitments);
 			CommitmentStore.emitChange();
 			break;
+		case ActionTypes.CREATE_COMMITMENT:
+			var commitment = AppUtils.getCreatedCommitmentData(
+        action.title,
+        action.description
+      );
+      _commitments[commitment.id] = commitment;
+			CommitmentStore.emitChange();
+      break;
 		default:
 			//nothing happen
 	}

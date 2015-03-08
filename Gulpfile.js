@@ -41,7 +41,8 @@ gulp.task('browser-sync', function() {
 //		server: {
 //			baseDir: './'
 //		},
-		proxy: 'http://localhost:8080'
+		proxy: 'http://localhost:8080',
+		browser: "firefox"
 	});
 });
 
