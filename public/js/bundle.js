@@ -15,29 +15,7 @@ React.render(
   document.getElementById('react-app')
 );
 
-},{"./app/api/commitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js","./app/components/App":"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/CommitmentActionCreators.js":[function(require,module,exports){
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var AppConstants = require('../constants/AppConstants');
-var CommitmentAPI = require('../api/CommitmentAPI');
-var AppUtils = require('../utils/AppUtils');
-
-var ActionTypes = AppConstants.ActionTypes;
-
-module.exports = {
-
-  createCommitment: function(title, description) {
-    AppDispatcher.dispatch({
-      type: ActionTypes.CREATE_COMMITMENT,
-      title: title,
-      description: description
-    });
-    var commitment = AppUtils.getCreatedCommitmentData(title, description);
-    CommitmentAPI.createCommitment(commitment);
-  }
-
-};
-
-},{"../api/CommitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js","../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js","../utils/AppUtils":"/Users/kafai/coding/other_projects/your-work-count/app/utils/AppUtils.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/appActionCreators.js":[function(require,module,exports){
+},{"./app/api/commitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js","./app/components/App":"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/AppActionCreators.js":[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 
@@ -61,8 +39,30 @@ module.exports = {
 
 };
 
-},{"../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":[function(require,module,exports){
-var AppActionCreators = require('../actions/appActionCreators');
+},{"../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/CommitmentActionCreators.js":[function(require,module,exports){
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var AppConstants = require('../constants/AppConstants');
+var CommitmentAPI = require('../api/CommitmentAPI');
+var AppUtils = require('../utils/AppUtils');
+
+var ActionTypes = AppConstants.ActionTypes;
+
+module.exports = {
+
+  createCommitment: function(title, description) {
+    AppDispatcher.dispatch({
+      type: ActionTypes.CREATE_COMMITMENT,
+      title: title,
+      description: description
+    });
+    var commitment = AppUtils.getCreatedCommitmentData(title, description);
+    CommitmentAPI.createCommitment(commitment);
+  }
+
+};
+
+},{"../api/CommitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js","../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js","../utils/AppUtils":"/Users/kafai/coding/other_projects/your-work-count/app/utils/AppUtils.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":[function(require,module,exports){
+var AppActionCreators = require('../actions/AppActionCreators');
 
 module.exports = {
 
@@ -96,7 +96,7 @@ module.exports = {
 
 };
 
-},{"../actions/appActionCreators":"/Users/kafai/coding/other_projects/your-work-count/app/actions/appActionCreators.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js":[function(require,module,exports){
+},{"../actions/AppActionCreators":"/Users/kafai/coding/other_projects/your-work-count/app/actions/AppActionCreators.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js":[function(require,module,exports){
 module.exports=require("/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js")
 },{"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js":[function(require,module,exports){
 /** @jsx React.DOM */

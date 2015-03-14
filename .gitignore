@@ -30,5 +30,7 @@ node_modules
 .DS_Store
 
 *.swp
+*.swo
 .sass-cache
 bower_components
+.env.json

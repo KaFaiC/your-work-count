@@ -1,13 +1,23 @@
-var AppActionCreators = require('../actions/appActionCreators');
-
+var AppActionCreators = require('../actions/AppActionCreators');
+var request           = require('superagent');
 module.exports = {
 
   getAllCommitments: function() {
-    // simulate retrieving data from a database
-    var rawCommitments = JSON.parse(localStorage.getItem('commitments')) || [];
+		var rawCommitments = [];
+
+		request
+			.get('/api/commitments', { page: 1, skip: 0 })
+			.end(function(err, res) {
+				if (res.body && res.body.results) {
+					var rawCommitments = res.body.results
+			    AppActionCreators.receiveAll(rawCommitments);
+				}
+			});
+		// simulate retrieving data from a database
+
+    // var rawCommitments = JSON.parse(localStorage.getItem('commitments')) || [];
 
     // simulate success callback
-    AppActionCreators.receiveAll(rawCommitments);
   },
 
   createCommitment: function(commitment) {
