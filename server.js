@@ -1,11 +1,12 @@
 // Require our dependencies
-var express = require('express'),
-		fs			= require('fs'),
-		exphbs 		= require('express-handlebars'),
-		http 			= require('http'),
-		mongoose  = require('mongoose'),
-		routes 		= require('./routes'),
-		config 		= require('./config/config');
+var express 		= require('express'),
+		bodyParser	= require('body-parser'),
+		fs					= require('fs'),
+		exphbs			= require('express-handlebars'),
+		http				= require('http'),
+		mongoose		= require('mongoose'),
+		routes			= require('./routes'),
+		config			= require('./config/config');
 
 // Create an express instance and set a port variable
 var app = express();
@@ -30,12 +31,17 @@ fs.readdirSync(__dirname + '/app/models').forEach(function (file) {
 	if (~file.indexOf('.js', file.length - '.js'.length)) require(__dirname + '/app/models/' + file);
 });
 
+var commitments = require('./routes/commitments');
+
 // Disable etag headers on responses
 // app.disable('etag');
 
 app
-  .get('/', routes.index)
   .use("/", express.static(__dirname + "/public/"))
+	.use(bodyParser.json())
+	.use(bodyParser.urlencoded( {extended: true}))
+	.use('/api', commitments)
+  .get('/', routes.index)
   .listen(port, function() {
     console.log('Express server listening on port ' + port);
   });

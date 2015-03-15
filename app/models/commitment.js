@@ -30,4 +30,5 @@ CommitmentSchema.statics.getCommitments = function(page, skip, callback) {
 		});
 };
 
+console.log('fuckkkkk')
 mongoose.model('Commitment', CommitmentSchema);
