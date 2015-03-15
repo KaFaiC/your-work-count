@@ -13,6 +13,7 @@ router.route('/commitments')
 		});
 	})
 	.post(function(req, res) {
+		console.log(req.body)
 		var commitment = new Commitment(req.body);
 		commitment.save(function(err) {
 			if(!err) {

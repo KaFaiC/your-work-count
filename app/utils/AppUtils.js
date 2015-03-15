@@ -13,12 +13,11 @@ module.exports = {
 
   getCreatedCommitmentData: function(title, description) {
     var timestamp = Date.now();
-    var id = 'commitment' + timestamp;
+    var id = 'commitment' + Math.floor(Math.random()*100) + timestamp;
     return {
       id: id,
       title: title,
-      description: description,
-      timestamp: timestamp
+      description: description
     };
   }
 

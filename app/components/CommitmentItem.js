@@ -8,7 +8,7 @@ var CommitmentItem = React.createClass({
 		var commitment = this.props.commitment;
 		return (
 			<li>
-				{commitment.title}
+				{commitment.id} {commitment.title} {commitment.status}
 			</li>
 		);
 	}

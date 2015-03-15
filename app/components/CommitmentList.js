@@ -10,7 +10,7 @@ var CommitmentList = React.createClass({
 			return null;
 		}
 		var allCommitments = this.props.allCommitments;
-		console.log(allCommitments)
+		console.log(allCommitments);
 
 		var commitments = [];
 		for (var commitmentId in allCommitments) {

@@ -46,13 +46,21 @@ AppDispatcher.register(function(action) {
 			CommitmentStore.emitChange();
 			break;
 		case ActionTypes.CREATE_COMMITMENT:
-			var commitment = AppUtils.getCreatedCommitmentData(
-        action.title,
-        action.description
-      );
-      _commitments[commitment.id] = commitment;
+			action.commitment.status = "ADDING";
+      _commitments[action.commitment.id] = action.commitment;
 			CommitmentStore.emitChange();
       break;
+		case ActionTypes.CREATE_COMMITMENT_SUCCESS:
+			var commitment = _commitments[action.commitment_id];
+			commitment.status = "OK";
+			CommitmentStore.emitChange();
+			break
+		case ActionTypes.CREATE_COMMITMENT_FAIL:
+			var commitment = _commitments[action.commitment_id];
+			commitment.status = "ERROR";
+			commitment.error  = action.error;
+			CommitmentStore.emitChange();
+			break;
 		default:
 			//nothing happen
 	}

@@ -50,7 +50,6 @@ var CommitmentForm = React.createClass({
 	_onFormSubmit: function(event, value) {
 		var title = this.state.title.trim();
 		var description = this.state.description.trim();
-		console.log(CommitmentActionCreators);
 		event.preventDefault();
 		CommitmentActionCreators.createCommitment(title, description)
 	}

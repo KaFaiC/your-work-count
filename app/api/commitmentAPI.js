@@ -1,22 +1,24 @@
-var AppActionCreators = require('../actions/AppActionCreators');
 var request           = require('superagent');
 module.exports = {
 
-  getAllCommitments: function() {
+  getAllCommitments: function(success, failure) {
 		var rawCommitments = [];
 
 		request
 			.get('/api/commitments', { page: 1, skip: 0 })
 			.end(function(err, res) {
-				console.log(res.body);
-				if (res.body && res.body.commitments) {
-					var rawCommitments = res.body.commitments;
-			    AppActionCreators.receiveAll(rawCommitments);
-				}
+        if (!err) {
+          if (res.body && res.body.commitments) {
+  					var rawCommitments = res.body.commitments;
+            success(rawCommitments)
+  				}
+        } else {
+          alert('error of fetching commitments')
+        }
 			});
   },
 
-  createCommitment: function(commitment) {
+  createCommitment: function(commitment, success, failure) {
 		var timestamp = Date.now();
     var id = 'commitment' + timestamp;
     var createdCommitment = {
@@ -25,18 +27,15 @@ module.exports = {
       description: commitment.description,
       timestamp: timestamp
     };
-		
+
 		request
 			.post('/api/commitments', createdCommitment)
 			.end(function(err, res) {
 				if (!err) {
-					AppActionCreators.receiveCreatedCommitment(createdCommitment);
+          success(res.body.commitment)
 				} else {
-					console.log('heee');
-					console.log(err)
+          failure(err);
 				}
-				console.log(res.body);
-				console.log(res);
 			});
 
   }

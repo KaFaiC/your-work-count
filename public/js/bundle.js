@@ -6,7 +6,7 @@ var App = require('./app/components/App');
 var CommitmentsAPI = require('./app/api/commitmentAPI')
 
 var initialState = JSON.parse(document.getElementById('initial-state').innerHTML)
-CommitmentsAPI.getAllCommitments();
+// CommitmentsAPI.getAllCommitments();
 // Snag the initial state that was passed from the server side
 // Render the components, picking up where react left off on the server
 React.render(
@@ -17,11 +17,26 @@ React.render(
 
 },{"./app/api/commitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js","./app/components/App":"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/AppActionCreators.js":[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
-var AppConstants = require('../constants/AppConstants');
+var AppConstants  = require('../constants/AppConstants');
+var CommitmentAPI = require('../api/CommitmentAPI');
 
 var ActionTypes = AppConstants.ActionTypes;
 
 module.exports = {
+
+  initialize: function() {
+    CommitmentAPI.getAllCommitments(function(rawCommitments) {
+      AppDispatcher.dispatch({
+        type: ActionTypes.RECEIVE_RAW_COMMITMENTS,
+        rawCommitments: rawCommitments
+      })
+    }, function() {
+
+    });
+    AppDispatcher.dispatch({
+      type: ActionTypes.INITIALIZE_APP
+    })
+  },
 
   receiveAll: function(rawCommitments) {
     AppDispatcher.dispatch({
@@ -39,7 +54,7 @@ module.exports = {
 
 };
 
-},{"../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/CommitmentActionCreators.js":[function(require,module,exports){
+},{"../api/CommitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js","../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/actions/CommitmentActionCreators.js":[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 var CommitmentAPI = require('../api/CommitmentAPI');
@@ -50,37 +65,50 @@ var ActionTypes = AppConstants.ActionTypes;
 module.exports = {
 
   createCommitment: function(title, description) {
+    var commitment = AppUtils.getCreatedCommitmentData(title, description);
     AppDispatcher.dispatch({
       type: ActionTypes.CREATE_COMMITMENT,
-      title: title,
-      description: description
+      commitment: commitment
     });
-    var commitment = AppUtils.getCreatedCommitmentData(title, description);
-    CommitmentAPI.createCommitment(commitment);
+
+    CommitmentAPI.createCommitment(commitment, function() {
+      AppDispatcher.dispatch({
+        type: ActionTypes.CREATE_COMMITMENT_SUCCESS,
+        commitment_id: commitment.id
+      });
+    }, function(err) {
+      AppDispatcher.dispatch({
+        type: ActionTypes.CREATE_COMMITMENT_FAIL,
+        commitment_id: commitment.id,
+        error: err
+      });
+    });
   }
 
 };
 
 },{"../api/CommitmentAPI":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js","../constants/AppConstants":"/Users/kafai/coding/other_projects/your-work-count/app/constants/AppConstants.js","../dispatcher/AppDispatcher":"/Users/kafai/coding/other_projects/your-work-count/app/dispatcher/AppDispatcher.js","../utils/AppUtils":"/Users/kafai/coding/other_projects/your-work-count/app/utils/AppUtils.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":[function(require,module,exports){
-var AppActionCreators = require('../actions/AppActionCreators');
 var request           = require('superagent');
 module.exports = {
 
-  getAllCommitments: function() {
+  getAllCommitments: function(success, failure) {
 		var rawCommitments = [];
 
 		request
 			.get('/api/commitments', { page: 1, skip: 0 })
 			.end(function(err, res) {
-				console.log(res.body);
-				if (res.body && res.body.commitments) {
-					var rawCommitments = res.body.commitments;
-			    AppActionCreators.receiveAll(rawCommitments);
-				}
+        if (!err) {
+          if (res.body && res.body.commitments) {
+  					var rawCommitments = res.body.commitments;
+            success(rawCommitments)
+  				}
+        } else {
+          alert('error of fetching commitments')
+        }
 			});
   },
 
-  createCommitment: function(commitment) {
+  createCommitment: function(commitment, success, failure) {
 		var timestamp = Date.now();
     var id = 'commitment' + timestamp;
     var createdCommitment = {
@@ -89,39 +117,38 @@ module.exports = {
       description: commitment.description,
       timestamp: timestamp
     };
-		
+
 		request
 			.post('/api/commitments', createdCommitment)
 			.end(function(err, res) {
 				if (!err) {
-					AppActionCreators.receiveCreatedCommitment(createdCommitment);
+          success(res.body.commitment)
 				} else {
-					console.log('heee');
-					console.log(err)
+          failure(err);
 				}
-				console.log(res.body);
-				console.log(res);
 			});
 
   }
 
 };
 
-},{"../actions/AppActionCreators":"/Users/kafai/coding/other_projects/your-work-count/app/actions/AppActionCreators.js","superagent":"/Users/kafai/coding/other_projects/your-work-count/node_modules/superagent/lib/client.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js":[function(require,module,exports){
+},{"superagent":"/Users/kafai/coding/other_projects/your-work-count/node_modules/superagent/lib/client.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/api/commitmentAPI.js":[function(require,module,exports){
 module.exports=require("/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js")
 },{"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js":"/Users/kafai/coding/other_projects/your-work-count/app/api/CommitmentAPI.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/App.js":[function(require,module,exports){
 /** @jsx React.DOM */
 
-var React 					= require('react');
-var Loader				  = require('./Loader.js');
-var NotificationBar = require('./NotificationBar.js');
-var CommitmentList  = require('./CommitmentList.js');
-var CommitmentStore = require('../stores/commitmentStore.js');
-var CommitmentForm  = require('./CommitmentForm.js');
-var Header          = require('./Header.js');
+var React 						= require('react');
+var Loader				  	= require('./Loader.js');
+var NotificationBar 	= require('./NotificationBar.js');
+var CommitmentList  	= require('./CommitmentList.js');
+var CommitmentStore	 	= require('../stores/commitmentStore.js');
+var CommitmentForm  	= require('./CommitmentForm.js');
+var Header          	= require('./Header.js');
+var AppActionCreators = require('../actions/AppActionCreators.js');
 // Export the App component
 
 function getCommitmentStateFromStore() {
+	console.log(CommitmentStore.getAll())
 	return {
 			allCommitments: CommitmentStore.getAll()
 		};
@@ -136,6 +163,7 @@ var App = React.createClass({displayName: 'App',
 	},
 
 	componentDidMount: function() {
+		AppActionCreators.initialize();
 		CommitmentStore.addChangeListener(this._onChange);
 	},
 
@@ -159,6 +187,7 @@ var App = React.createClass({displayName: 'App',
   },
 
 	_onChange: function() {
+		console.log(getCommitmentStateFromStore());
 		this.setState(getCommitmentStateFromStore());
 	}
 
@@ -166,7 +195,7 @@ var App = React.createClass({displayName: 'App',
 
 module.exports = App;
 
-},{"../stores/commitmentStore.js":"/Users/kafai/coding/other_projects/your-work-count/app/stores/commitmentStore.js","./CommitmentForm.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentForm.js","./CommitmentList.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentList.js","./Header.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Header.js","./Loader.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Loader.js","./NotificationBar.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/NotificationBar.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentForm.js":[function(require,module,exports){
+},{"../actions/AppActionCreators.js":"/Users/kafai/coding/other_projects/your-work-count/app/actions/AppActionCreators.js","../stores/commitmentStore.js":"/Users/kafai/coding/other_projects/your-work-count/app/stores/commitmentStore.js","./CommitmentForm.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentForm.js","./CommitmentList.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentList.js","./Header.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Header.js","./Loader.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/Loader.js","./NotificationBar.js":"/Users/kafai/coding/other_projects/your-work-count/app/components/NotificationBar.js","react":"/Users/kafai/coding/other_projects/your-work-count/node_modules/react/react.js"}],"/Users/kafai/coding/other_projects/your-work-count/app/components/CommitmentForm.js":[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react');
@@ -219,7 +248,6 @@ var CommitmentForm = React.createClass({displayName: 'CommitmentForm',
 	_onFormSubmit: function(event, value) {
 		var title = this.state.title.trim();
 		var description = this.state.description.trim();
-		console.log(CommitmentActionCreators);
 		event.preventDefault();
 		CommitmentActionCreators.createCommitment(title, description)
 	}
@@ -238,7 +266,7 @@ var CommitmentItem = React.createClass({displayName: 'CommitmentItem',
 		var commitment = this.props.commitment;
 		return (
 			React.DOM.li(null, 
-				commitment.title
+				commitment.id, " ", commitment.title, " ", commitment.status
 			)
 		);
 	}
@@ -259,7 +287,7 @@ var CommitmentList = React.createClass({displayName: 'CommitmentList',
 			return null;
 		}
 		var allCommitments = this.props.allCommitments;
-		console.log(allCommitments)
+		console.log(allCommitments);
 
 		var commitments = [];
 		for (var commitmentId in allCommitments) {
@@ -332,7 +360,10 @@ var keyMirror = require('keymirror');
 module.exports = {
 
   ActionTypes: keyMirror({
+    INITIALIZE_APP: null,
     CREATE_COMMITMENT: null,
+		CREATE_COMMITMENT_SUCCESS: null,
+		CREATE_COMMITMENT_FAIL: null,
     RECEIVE_RAW_COMMITMENTS: null
   })
 
@@ -392,13 +423,21 @@ AppDispatcher.register(function(action) {
 			CommitmentStore.emitChange();
 			break;
 		case ActionTypes.CREATE_COMMITMENT:
-			var commitment = AppUtils.getCreatedCommitmentData(
-        action.title,
-        action.description
-      );
-      _commitments[commitment.id] = commitment;
+			action.commitment.status = "ADDING";
+      _commitments[action.commitment.id] = action.commitment;
 			CommitmentStore.emitChange();
       break;
+		case ActionTypes.CREATE_COMMITMENT_SUCCESS:
+			var commitment = _commitments[action.commitment_id];
+			commitment.status = "OK";
+			CommitmentStore.emitChange();
+			break
+		case ActionTypes.CREATE_COMMITMENT_FAIL:
+			var commitment = _commitments[action.commitment_id];
+			commitment.status = "ERROR";
+			commitment.error  = action.error;
+			CommitmentStore.emitChange();
+			break;
 		default:
 			//nothing happen
 	}
@@ -422,12 +461,11 @@ module.exports = {
 
   getCreatedCommitmentData: function(title, description) {
     var timestamp = Date.now();
-    var id = 'commitment' + timestamp;
+    var id = 'commitment' + Math.floor(Math.random()*100) + timestamp;
     return {
       id: id,
       title: title,
-      description: description,
-      timestamp: timestamp
+      description: description
     };
   }
 
